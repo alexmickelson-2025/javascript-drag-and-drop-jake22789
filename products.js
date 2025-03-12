@@ -70,4 +70,8 @@ export const products = [
     image: "/images/yerba.jpg"
   }
 ];
-
+export var CurrentProducts = [...products]
+export var CartItems;
+export function GetProducts(){
+  return CurrentProducts;
+}
