@@ -70,8 +70,9 @@ export const products = [
     image: "/images/yerba.jpg",
   },
 ];
-export var CurrentProducts = [...products];
-export var CartItems = [];
+export const CurrentProducts =[...products]; 
+
+export const CartItems = [];
 export function GetProducts() {
   return CurrentProducts;
 }
@@ -79,17 +80,30 @@ export function GetCart() {
   return CartItems;
 }
 export function AddObject(title) {
-  products.forEach((element) => {
-    if (title === element.title && !CartItems.includes(element)) {
-      CartItems.push(element);
-      CartItems[CartItems.length - 1].quantity = 1;
+  CurrentProducts.forEach((element) => {
+    const productInCart = CartItems.find(item => item.title === element.title);
+    if (title === element.title && !productInCart && element.quantity>0) {
+      CartItems.push({...element,quantity:1});
+      element.quantity-=1;
       return;
     }
-    if (title === element.title && CartItems.includes(element)) {
-      const item = CartItems.find((item) => item.title === element.title);
+    if (title === element.title && element.quantity>0) {
+      const item = CartItems.find((item) => item.title === title); 
       item.quantity += 1;
-      console.log(CurrentProducts[1])
+      element.quantity-=1;
       return;
     }
   });
+}
+export function RemoveObject(title) {
+  const stock = CurrentProducts.find(item => item.title === title);
+  const origin = products.find(item => item.title === title);
+  
+  for (let i = 0; i < CartItems.length; i++) {
+    if (CartItems[i].title === title) {
+      stock.quantity+=CartItems[i].quantity;
+      CartItems.splice(i, 1);
+      break; 
+    }
+  }
 }

@@ -1,4 +1,4 @@
-import { AddObject, GetCart, GetProducts, products } from "./products.js";
+import { AddObject, GetCart, GetProducts, products, RemoveObject } from "./products.js";
 
 function RenderPage() {
   RenderAvailable();
@@ -37,6 +37,7 @@ function RenderAvailable() {
   const itemList = GetProducts();
   const productList = document.getElementById("products-container");
   productList.replaceChildren();
+  
   const header = document.createElement("h2");
   header.textContent = "Available Products";
   productList.appendChild(header);
@@ -52,7 +53,11 @@ function RenderAvailable() {
     cardElement.addEventListener("dragstart",(e) => {
       e.dataTransfer.setData("text", e.target.id)
     });
-    productList.appendChild(cardElement);
+    if(item.quantity !== 0){
+      productList.appendChild(cardElement);
+    }
+    
+    
   });
 }
 function RenderYourCart() {
@@ -60,14 +65,6 @@ function RenderYourCart() {
   const itemList = GetCart();
   const List = document.getElementById("cartList");
   List.replaceChildren();
-  List.addEventListener("drop", (e) => {
-    e.preventDefault();
-    var data = e.dataTransfer.getData("text");
-    e.target.appendChild(document.getElementById(data));
-  });
-  List.addEventListener("dragover", (e) => {
-    e.preventDefault();
-  });
   itemList.forEach((item) => {
     const cardElement = CreateItemCardElement(
       item.title,
@@ -76,13 +73,39 @@ function RenderYourCart() {
       item.quantity,
       item.image
     );
+    cardElement.id = item.title;
+    cardElement.addEventListener("dragstart",(e) => {
+      e.dataTransfer.setData("text", e.target.id)
+    });
     List.appendChild(cardElement);
     total += item.price * item.quantity;
   });
   const TotalElement = document.getElementById("amount");
   TotalElement.textContent = total;
 }
-
+function Eventlisteners(){
+const List = document.getElementById("cartList");
+const product = document.getElementById("products-container");
+List.addEventListener("drop", (e) => {
+  e.preventDefault();
+  var data = e.dataTransfer.getData("text");
+  AddObject(data);
+  RenderPage();
+});
+product.addEventListener("drop",(e) => {
+  e.preventDefault();
+  var data = e.dataTransfer.getData("text");
+  RemoveObject(data);
+  RenderPage();
+});
+List.addEventListener("dragover", (e) => {
+  e.preventDefault();
+});
+product.addEventListener("dragover", (e) => {
+  e.preventDefault();
+});
+}
 // main program
+Eventlisteners();
 RenderPage();
 
